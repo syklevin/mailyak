@@ -455,17 +455,17 @@ func (n *ntlmAuth) Next(fromServer []byte, more bool) ([]byte, error) {
 	}
 }
 
-func NTLMAuth(host, user, password string, version ntlm.Version) *ntlmAuth {
+func NTLMAuth(username, password, host string, version ntlm.Version) *ntlmAuth {
 	session, err := ntlm.CreateClientSession(version, ntlm.ConnectionlessMode)
 	if err != nil {
 		panic(err)
 	}
 
-	idx := strings.IndexAny(user, "\\/")
+	idx := strings.IndexAny(username, "\\/")
 	if idx < 0 {
-		session.SetUserInfo(user, password, "")
+		session.SetUserInfo(username, password, "")
 	} else {
-		session.SetUserInfo(user[idx+1:], password, user[:idx])
+		session.SetUserInfo(username[idx+1:], password, username[:idx])
 	}
 
 	return &ntlmAuth{
