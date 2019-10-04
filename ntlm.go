@@ -13,9 +13,8 @@ import (
 	"strings"
 	"unicode/utf16"
 
-	"golang.org/x/crypto/md4"
-
 	"github.com/git-lfs/go-ntlm/ntlm"
+	"github.com/git-lfs/go-ntlm/ntlm/md4"
 )
 
 const (
