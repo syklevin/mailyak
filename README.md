@@ -27,6 +27,8 @@ go get -v github.com/domodwyer/mailyak
 ```Go
 // Create a new email - specify the SMTP host and auth
 mail := mailyak.New("mail.host.com:25", smtp.PlainAuth("", "user", "pass", "mail.host.com"))
+// You can also use NewWithTLS to provide TLS configuration
+// mail = mail.NewWithTLS("mail.host.com:25", smtp.PlainAuth("", "user", "pass", "mail.host.com"), &tls.Config{InsecureSkipVerify: true})
 
 mail.To("dom@itsallbroken.com")
 mail.From("jsmith@example.com")

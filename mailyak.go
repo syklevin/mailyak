@@ -2,6 +2,7 @@ package mailyak
 
 import (
 	"bytes"
+	"crypto/tls"
 	"fmt"
 	"net/smtp"
 	"regexp"
@@ -31,6 +32,7 @@ type MailYak struct {
 	host           string
 	writeBccHeader bool
 	date           string
+	tls            *tls.Config
 }
 
 // New returns an instance of MailYak using host as the SMTP server, and
@@ -53,6 +55,31 @@ func New(host string, auth smtp.Auth) *MailYak {
 		trimRegex:      regexp.MustCompile("\r?\n"),
 		writeBccHeader: false,
 		date:           time.Now().Format(time.RFC1123Z),
+		tls:            &tls.Config{ServerName:host},
+	}
+}
+
+// NewWithTLS returns an instance of MailYak using host as the SMTP server, and
+// authenticating with auth where required and also TLS configuration
+//
+// host must include the port number (i.e. "smtp.itsallbroken.com:25")
+//
+// 		mail := mailyak.NewWithTLS("smtp.itsallbroken.com:25", smtp.PlainAuth(
+// 			"",
+// 			"username",
+// 			"password",
+// 			"stmp.itsallbroken.com",
+//		), &tls.Config{InsecureSkipVerify: true})
+//
+func NewWithTLS(host string, auth smtp.Auth, tlsConfig *tls.Config) *MailYak {
+	return &MailYak{
+		headers:        map[string]string{},
+		host:           host,
+		auth:           auth,
+		trimRegex:      regexp.MustCompile("\r?\n"),
+		writeBccHeader: false,
+		date:           time.Now().Format(time.RFC1123Z),
+		tls:            tlsConfig,
 	}
 }
 
@@ -66,12 +93,13 @@ func (m *MailYak) Send() error {
 		return err
 	}
 
-	return smtp.SendMail(
+	return sendMail(
 		m.host,
 		m.auth,
 		m.fromAddr,
 		append(append(m.toAddrs, m.ccAddrs...), m.bccAddrs...),
 		buf.Bytes(),
+		m.tls,
 	)
 }
 
