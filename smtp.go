@@ -214,7 +214,12 @@ func (c *Client) authorize(a smtp.Auth) error {
 		var msg []byte
 		switch code {
 		case 334:
-			msg, err = encoding.DecodeString(msg64)
+			if msg64 == "NTLM supported" {
+				msg = []byte(msg64)
+			} else {
+				msg, err = encoding.DecodeString(msg64)
+			}
+			//msg, err = encoding.DecodeString(msg64)
 		case 235:
 			// the last message isn't base64 because it isn't a challenge
 			msg = []byte(msg64)
@@ -335,7 +340,9 @@ func sendMail(addr string, a smtp.Auth, from string, to []string, msg []byte, co
 		return err
 	}
 	if ok, _ := c.Extension("STARTTLS"); ok {
-		config := &tls.Config{ServerName: c.serverName}
+		if config.ServerName == "" {
+			config.ServerName = c.serverName
+		}
 		if testHookStartTLS != nil {
 			testHookStartTLS(config)
 		}

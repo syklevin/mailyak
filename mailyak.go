@@ -55,7 +55,7 @@ func New(host string, auth smtp.Auth) *MailYak {
 		trimRegex:      regexp.MustCompile("\r?\n"),
 		writeBccHeader: false,
 		date:           time.Now().Format(time.RFC1123Z),
-		tls:            &tls.Config{ServerName:host},
+		tls:            &tls.Config{},
 	}
 }
 
